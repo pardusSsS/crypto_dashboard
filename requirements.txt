@@ -1,0 +1,5 @@
+# Web Framework
+flask
+
+# Firebase
+firebase-admin
