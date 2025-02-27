@@ -25,6 +25,11 @@ def create_app():
         """Render dashboard page"""
         return render_template('index.html')
     
+    @app.route('/disclaimer')
+    def disclaimer():
+        """Render disclaimer page"""
+        return render_template('disclaimer.html')
+    
     @app.route('/api/status')
     def get_status():
         """Get bot status from Firestore"""
