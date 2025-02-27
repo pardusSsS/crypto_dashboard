@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, render_template
 #from flask_cors import CORS
+import json
+import os
 import logging
 from datetime import datetime
 from firebase_admin import credentials, firestore, initialize_app
@@ -29,6 +31,31 @@ def create_app():
     def disclaimer():
         """Render disclaimer page"""
         return render_template('disclaimer.html')
+    
+    @app.route('/api/firebase-config')
+    def get_firebase_config():
+        """Get Firebase configuration for client-side use"""
+        try:
+            # Read the firebase_config.json file
+            config_path = os.path.join(os.path.dirname(__file__), './firebase_web_config.json')
+            with open(config_path, 'r') as f:
+                firebase_admin_config = json.load(f)
+            
+            # Create client-side Firebase config
+            client_config = {
+                'apiKey': firebase_admin_config['apiKey'],
+                'authDomain': firebase_admin_config['authDomain'],
+                'projectId': firebase_admin_config['projectId'],
+                'storageBucket': firebase_admin_config['storageBucket'],
+                'messagingSenderId': firebase_admin_config['messagingSenderId'],
+                'appId': firebase_admin_config['appId'],  # Use appId as is, no need to add prefix
+                'measurementId': firebase_admin_config['measurementId']
+            }
+            
+            return jsonify(client_config)
+        except Exception as e:
+            logger.error(f"Error getting Firebase config: {str(e)}")
+            return jsonify({'error': str(e)}), 500
     
     @app.route('/api/status')
     def get_status():

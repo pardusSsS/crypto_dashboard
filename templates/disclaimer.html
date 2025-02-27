@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disclaimer - CryptoBot Dashboard</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js -->
@@ -145,5 +147,36 @@
             </div>
         </div>
     </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    
+    <!-- Firebase Configuration and Initialization -->
+    <script>
+        // Fetch Firebase configuration from our API
+        fetch('/api/firebase-config')
+            .then(response => response.json())
+            .then(firebaseConfig => {
+                // Initialize Firebase with the config
+                firebase.initializeApp(firebaseConfig);
+                const analytics = firebase.analytics();
+                
+                // Log page view with page specific data
+                analytics.logEvent('page_view', {
+                    page_title: 'Disclaimer Page',
+                    page_location: window.location.href,
+                    page_path: '/disclaimer'
+                });
+                
+                // Track return to dashboard clicks
+                document.querySelector('a[href="/"]').addEventListener('click', () => {
+                    analytics.logEvent('return_to_dashboard');
+                });
+            })
+            .catch(error => {
+                console.error('Error loading Firebase configuration:', error);
+            });
+    </script>
 </body>
 </html> 

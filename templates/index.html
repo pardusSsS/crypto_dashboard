@@ -3,6 +3,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CryptoBot Dashboard</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js -->
@@ -384,7 +386,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Combined</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Signal</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Volume</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Reliability</th>
+                            <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Reliability</th> -->
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-800">
@@ -731,6 +733,51 @@
                 }
             }
         }
+    </script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    
+    <!-- Firebase Configuration and Initialization -->
+    <script>
+        // Fetch Firebase configuration from our API
+        fetch('/api/firebase-config')
+            .then(response => response.json())
+            .then(firebaseConfig => {
+                // Initialize Firebase with the config
+                firebase.initializeApp(firebaseConfig);
+                const analytics = firebase.analytics();
+                
+                // Log page view
+                analytics.logEvent('page_view');
+                
+                // Track disclaimer modal interactions
+                document.addEventListener('alpine:initialized', () => {
+                    const disclaimerAccepted = localStorage.getItem('disclaimerConsent');
+                    if (disclaimerAccepted) {
+                        analytics.logEvent('disclaimer_already_accepted');
+                    } else {
+                        analytics.logEvent('disclaimer_shown');
+                        
+                        // Track when users accept the disclaimer
+                        document.querySelector('[x-data="{ showConsentModal: !localStorage.getItem(\'disclaimerConsent\') }"] button')
+                            ?.addEventListener('click', () => {
+                                analytics.logEvent('disclaimer_accepted');
+                            });
+                    }
+                });
+                
+                // Track other important interactions
+                document.querySelectorAll('a[href="/disclaimer"]').forEach(link => {
+                    link.addEventListener('click', () => {
+                        analytics.logEvent('disclaimer_page_visit');
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error loading Firebase configuration:', error);
+            });
     </script>
 </body>
 </html> 
